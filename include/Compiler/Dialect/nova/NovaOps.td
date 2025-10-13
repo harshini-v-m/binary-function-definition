@@ -35,8 +35,6 @@ Op<Nova_Dialect, mnemonic,
   }];
 }
 
-
-
 //----------------------add---------------------------------------
 
 def Nova_AddOp : Nova_BinaryOp<"add", [Commutative]> {
