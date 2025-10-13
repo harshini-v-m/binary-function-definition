@@ -23,7 +23,7 @@ using namespace mlir::nova;
   constraint on output:
   1-> result and operands type should be same
   2 -> if broadcaseted result type needs to be same as operands type after broadcasting*/
-
+template<typename BinOpinfertemplate>
 static LogicalResult BinaryInferReturnTypes(
     MLIRContext *context,
     std::optional<Location> loc,
@@ -32,22 +32,32 @@ static LogicalResult BinaryInferReturnTypes(
     OpaqueProperties properties,
     RegionRange regions,
     llvm::SmallVectorImpl<Type> &inferredReturnTypes) {
-
    //create a function specific for this operation and call it here
   // Check we have exactly 2 operands
   if (operands.empty() || operands.size() != 2) {
-      return mlir::emitOptionalError(*loc,"Expected non-empty operands for the operation and exactly 2 operands");}
+      return mlir::emitError(*loc) << BinOpinfertemplate::getOperationName() 
+                            << " requires exactly 2 operands";}
   // Get the types of the operands
   auto lhsType = llvm::dyn_cast<TensorType>(operands[0].getType());
   auto rhsType = llvm::dyn_cast<TensorType>(operands[1].getType());
   // Verify both operands are tensors
   if (!lhsType || !rhsType) {
     if (loc){
-      mlir::emitError(*loc, "nova.add operands must be tensors");
+      mlir::emitError(*loc) << BinOpinfertemplate::getOperationName() 
+                            << " operands must be tensor types";
       return failure();
     }
     return failure();
+  } 
+  
+  if (lhsType.getElementType()!= rhsType.getElementType()) {
+    if (loc) {
+      mlir::emitError(*loc) << BinOpinfertemplate::getOperationName() 
+                            << " operands must have the same element type";
+    }
+    return failure();
   }
+
   // Check if the operand types are the same
   if(operands[0].getType() == operands[1].getType()){
     inferredReturnTypes.push_back(operands[0].getType());
@@ -63,7 +73,6 @@ static LogicalResult BinaryInferReturnTypes(
 //-------------------------------------------------    
 //addOp   
 //------------------------------------------------- 
-
 LogicalResult AddOp::inferReturnTypes(
     MLIRContext *context,
     std::optional<Location> loc,
@@ -72,9 +81,9 @@ LogicalResult AddOp::inferReturnTypes(
     OpaqueProperties properties,
     RegionRange regions,
     llvm::SmallVectorImpl<Type> &inferredReturnTypes) {
-      return BinaryInferReturnTypes(context, loc, operands, attributes, properties, regions, inferredReturnTypes);
+      return BinaryInferReturnTypes<AddOp>(context, loc, operands, attributes, properties, regions, inferredReturnTypes);
     }
-    
+
 //-------------------------------------------------    
 //SubOp  
 //------------------------------------------------- 
@@ -86,7 +95,7 @@ LogicalResult SubOp::inferReturnTypes(
     OpaqueProperties properties,
     RegionRange regions,
     llvm::SmallVectorImpl<Type> &inferredReturnTypes) {
-      return BinaryInferReturnTypes(context, loc, operands, attributes, properties, regions, inferredReturnTypes);
+      return BinaryInferReturnTypes<SubOp>(context, loc, operands, attributes, properties, regions, inferredReturnTypes);
     }
 
 //-------------------------------------------------    
@@ -100,7 +109,7 @@ LogicalResult MulOp::inferReturnTypes(
     OpaqueProperties properties,
     RegionRange regions,
     llvm::SmallVectorImpl<Type> &inferredReturnTypes) {
-      return BinaryInferReturnTypes(context, loc, operands, attributes, properties, regions, inferredReturnTypes);
+      return BinaryInferReturnTypes<MulOp>(context, loc, operands, attributes, properties, regions, inferredReturnTypes);
     }
 
 //-------------------------------------------------    
@@ -115,7 +124,7 @@ LogicalResult DivOp::inferReturnTypes(
     OpaqueProperties properties,
     RegionRange regions,
     llvm::SmallVectorImpl<Type> &inferredReturnTypes) {
-      return BinaryInferReturnTypes(context, loc, operands, attributes, properties, regions, inferredReturnTypes);
+      return BinaryInferReturnTypes<DivOp>(context, loc, operands, attributes, properties, regions, inferredReturnTypes);
     }
 
 //-------------------------------------------------    
@@ -129,7 +138,7 @@ LogicalResult RemOp::inferReturnTypes(
     OpaqueProperties properties,
     RegionRange regions,
     llvm::SmallVectorImpl<Type> &inferredReturnTypes) {
-      return BinaryInferReturnTypes(context, loc, operands, attributes, properties, regions, inferredReturnTypes);
+      return BinaryInferReturnTypes<RemOp>(context, loc, operands, attributes, properties, regions, inferredReturnTypes);
     }
 
 //-------------------------------------------------    
@@ -144,7 +153,7 @@ LogicalResult PowOp::inferReturnTypes(
     OpaqueProperties properties,
     RegionRange regions,
     llvm::SmallVectorImpl<Type> &inferredReturnTypes) {
-      return BinaryInferReturnTypes(context, loc, operands, attributes, properties, regions, inferredReturnTypes);
+      return BinaryInferReturnTypes<PowOp>(context, loc, operands, attributes, properties, regions, inferredReturnTypes);
     }
 
 //-------------------------------------------------    
@@ -158,7 +167,7 @@ LogicalResult MaxOp::inferReturnTypes(
     OpaqueProperties properties,
     RegionRange regions,
     llvm::SmallVectorImpl<Type> &inferredReturnTypes) {
-      return BinaryInferReturnTypes(context, loc, operands, attributes, properties, regions, inferredReturnTypes);
+      return BinaryInferReturnTypes<MaxOp>(context, loc, operands, attributes, properties, regions, inferredReturnTypes);
     }
 
 //-------------------------------------------------    
@@ -172,7 +181,7 @@ LogicalResult MinOp::inferReturnTypes(
     OpaqueProperties properties,
     RegionRange regions,
     llvm::SmallVectorImpl<Type> &inferredReturnTypes) {
-      return BinaryInferReturnTypes(context, loc, operands, attributes, properties, regions, inferredReturnTypes);
+      return BinaryInferReturnTypes<MinOp>(context, loc, operands, attributes, properties, regions, inferredReturnTypes);
     }
 //-------------------------------------------------    
 //andOp
@@ -185,7 +194,7 @@ LogicalResult AndOp::inferReturnTypes(
     OpaqueProperties properties,
     RegionRange regions,
     llvm::SmallVectorImpl<Type> &inferredReturnTypes) {
-      return BinaryInferReturnTypes(context, loc, operands, attributes, properties, regions, inferredReturnTypes);
+      return BinaryInferReturnTypes<AndOp>(context, loc, operands, attributes, properties, regions, inferredReturnTypes);
     }
 //-------------------------------------------------    
 //orOp
@@ -198,7 +207,7 @@ LogicalResult OrOp::inferReturnTypes(
     OpaqueProperties properties,
     RegionRange regions,
     llvm::SmallVectorImpl<Type> &inferredReturnTypes) {
-      return BinaryInferReturnTypes(context, loc, operands, attributes, properties, regions, inferredReturnTypes);
+      return BinaryInferReturnTypes<OrOp>(context, loc, operands, attributes, properties, regions, inferredReturnTypes);
     }
 //-------------------------------------------------    
 //xorOp
@@ -211,5 +220,5 @@ LogicalResult XorOp::inferReturnTypes(
     OpaqueProperties properties,
     RegionRange regions,
     llvm::SmallVectorImpl<Type> &inferredReturnTypes) {
-      return BinaryInferReturnTypes(context, loc, operands, attributes, properties, regions, inferredReturnTypes);
+      return BinaryInferReturnTypes<XorOp>(context, loc, operands, attributes, properties, regions, inferredReturnTypes);
     }
