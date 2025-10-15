@@ -4,20 +4,29 @@
 #include "mlir/Dialect/Affine/LoopUtils.h"
 #include "mlir/Pass/Pass.h"
 
+
 namespace mlir {
 namespace nova {
 
-void AffineFullUnrollPass::runOnOperation() {
-  getOperation().walk([&](mlir::affine::AffineForOp op) {
-    if (failed(mlir::affine::loopUnrollFull(op))) {
-      op.emitError("unrolling failed");
-      signalPassFailure();
-    }
-    else {
-      llvm::outs() << "Successfully unrolled loop\n";
-    }
-  });
-}
+#define GEN_PASS_DEF_AFFINEFULLUNROLL
+#include "Compiler/Transforms/Affine/Passes.h.inc"
+
+
+
+// A pass that manually walks the IR
+struct AffineFullUnroll : impl::AffineFullUnrollBase<AffineFullUnroll> {
+  using AffineFullUnrollBase::AffineFullUnrollBase;
+
+  void runOnOperation() override {
+    getOperation()->walk([&](mlir::affine::AffineForOp op) {
+      if (failed(mlir::affine::loopUnrollFull(op))) {
+        op.emitError("unrolling failed");
+        signalPassFailure();
+      }
+    });
+  }
+};
+
 
 } // namespace nova
 } // namespace mlir

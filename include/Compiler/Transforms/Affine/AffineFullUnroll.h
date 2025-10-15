@@ -10,14 +10,8 @@
 namespace mlir {
 namespace nova {    
 
-class AffineFullUnrollPass : public PassWrapper<AffineFullUnrollPass, OperationPass<mlir::func::FuncOp>> {
-private:
-    void runOnOperation() override;
-    StringRef getArgument() const final { return "affine-full-unroll"; }
-    StringRef getDescription() const final { return "Fully unroll affine.for ops with constant bounds"; 
-    }
-
-};
+#define GEN_PASS_DECL_AFFINEFULLUNROLL
+#include "Compiler/Transforms/Affine/Passes.h.inc"
 
 }
 }
