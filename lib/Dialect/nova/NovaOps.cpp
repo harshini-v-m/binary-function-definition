@@ -69,6 +69,26 @@ static LogicalResult BinaryInferReturnTypes(
   
   return success();
     }
+//-------------------------------------------------
+//constant
+//-------------------------------------------------
+LogicalResult ConstantOp::verify() {
+  auto valueAttr = getValue();
+  auto outputType = getOutput().getType();
+  
+  // Check if value attribute type matches output type
+  if (auto denseAttr = dyn_cast<DenseElementsAttr>(valueAttr)) {
+    if (denseAttr.getType() != outputType) {
+      return emitOpError("value attribute type ")
+             << denseAttr.getType() << " does not match output type "
+             << outputType;
+    }
+  }
+  
+  return success();
+}
+
+
 
 //-------------------------------------------------    
 //addOp   

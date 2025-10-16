@@ -9,6 +9,49 @@ include "NovaDialect.td"
 def Nova_ElementType : AnyTypeOf<[I1, I8, I16, I32, I64, F16, BF16, F32, F64, Complex<F32>, Complex<F64>]>;
 def Nova_Tensor : TensorOf<[Nova_ElementType]>;
 
+class Nova_UnaryOp<string mnemonic, list<Trait> traits = []> :
+    Op<Nova_Dialect,mnemonic, traits # [Pure]> {
+  let arguments = (ins Nova_Tensor:$input);
+  let results = (outs Nova_Tensor:$output);
+  
+  let assemblyFormat = [{
+    $input attr-dict `:` type($input) `->` type($output)
+  }];
+}
+
+
+def Nova_ConstantOp : Nova_UnaryOp<"constant", [Pure]> {
+  let summary = "Constant tensor operation";
+  let description = [{
+    Creates a constant tensor with a specified value.
+    
+    Example:
+    ```mlir
+    %0 = nova.constant {value = dense<[1.0, 2.0, 3.0, 4.0]> : tensor<4xf32>} : tensor<4xf32>
+    ```
+  }];
+  
+  let arguments = (ins ElementsAttr:$value);
+  let results = (outs Nova_Tensor:$output);
+  
+  let assemblyFormat = [{
+    attr-dict `:` type($output)
+  }];
+  
+  let builders = [
+    OpBuilder<(ins "Attribute":$value, "Type":$resultType)>
+  ];
+
+  let hasVerifier = 1;
+
+
+  let extraClassDeclaration = [{
+    /// Set a new value attribute for the constant op.
+    void setValue(::mlir::Attribute newValue) {
+      (*this)->setAttr("value", newValue);
+    }
+  }];
+}
 //------------------base class for binary--------------------------
 // Base class for all binary elementwise tensor ops.
 class Nova_BinaryOp<string mnemonic, list<Trait> commonTraits = []>: 
