@@ -1,2 +1,0 @@
-/usr/bin/ar Dqc libArithcanonicalizer.a CMakeFiles/obj.Arithcanonicalizer.dir/Canonicalizer.cpp.o
-/usr/bin/ranlib -D libArithcanonicalizer.a

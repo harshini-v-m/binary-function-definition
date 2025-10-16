@@ -1,2 +1,0 @@
-/usr/bin/ar Dqc libAffineFullUnroll.a CMakeFiles/obj.AffineFullUnroll.dir/AffineFullUnroll.cpp.o
-/usr/bin/ranlib -D libAffineFullUnroll.a
