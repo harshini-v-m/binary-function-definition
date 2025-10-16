@@ -1,5 +1,5 @@
 // Canonicalize.cpp
-#include "Canonicalizer.h"
+#include "Compiler/Transforms/Arith/Canonicalizer.h"
 
 #include "mlir/Pass/Pass.h"
 #include "mlir/IR/PatternMatch.h"

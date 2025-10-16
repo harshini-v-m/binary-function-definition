@@ -1,4 +1,4 @@
-add_mlir_library(Arithcanoonicalizer
+add_mlir_library(Arithcanonicalizer
   Canonicalizer.cpp
   Canonicalizer.h
 
@@ -14,7 +14,7 @@ add_mlir_library(Arithcanoonicalizer
     MLIRNova
 )
 
-target_include_directories(Arithcanoonicalizer PRIVATE
+target_include_directories(Arithcanonicalizer PRIVATE
   ${PROJECT_BINARY_DIR}/include
   ${PROJECT_SOURCE_DIR}/include
 

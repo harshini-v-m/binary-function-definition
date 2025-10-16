@@ -4,6 +4,7 @@
 #include "Compiler/Dialect/nova/NovaDialect.h"
 #include "Compiler/Dialect/nova/NovaOps.h"
 #include "Compiler/Transforms/Affine/AffineFullUnroll.h"
+#include "Compiler/Transforms/Arith/Canonicalizer.h"
 #include "mlir/InitAllDialects.h"
 #include "mlir/Pass/PassManager.h"
 #include "mlir/Pass/PassRegistry.h"
@@ -25,7 +26,7 @@ int main(int argc, char **argv) {
 
   mlir::registerAllPasses();
   mlir::nova::registerAffinePasses();
-  
+  mlir::PassRegistration<mlir::nova::Novapass>();
 
   return mlir::asMainReturnCode(
       mlir::MlirOptMain(argc, argv, "Nova dialect optimizer\n", registry));

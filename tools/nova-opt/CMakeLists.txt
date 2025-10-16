@@ -15,5 +15,7 @@ target_link_libraries(nova-opt PRIVATE
   MLIRNova
   ${dialect_libs}
   ${conversion_libs}
-  AffineFullUnroll 
+  Arithcanonicalizer
+  AffineFullUnroll
+   
 )
